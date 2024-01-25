@@ -1,4 +1,5 @@
 firebase_options.dart
+pubspec.lock
 
 # Miscellaneous
 *.class
