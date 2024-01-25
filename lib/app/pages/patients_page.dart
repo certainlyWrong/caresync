@@ -223,9 +223,15 @@ class _PatientsPageState extends State<PatientsPage> {
             future: bedsController.findAll(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Center(
-                  child: NotFoundComponent(
-                    title: "Erro ao buscar pacientes",
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      kToolbarHeight -
+                      kBottomNavigationBarHeight,
+                  child: const Center(
+                    child: NotFoundComponent(
+                      title: "Erro ao buscar pacientes",
+                    ),
                   ),
                 );
               }
@@ -234,9 +240,15 @@ class _PatientsPageState extends State<PatientsPage> {
                 final beds = snapshot.data as List<BedModel>;
 
                 if (beds.isEmpty) {
-                  return const Center(
-                    child: NotFoundComponent(
-                      title: "Não há leitos cadastrados",
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        kToolbarHeight -
+                        kBottomNavigationBarHeight,
+                    child: const Center(
+                      child: NotFoundComponent(
+                        title: "Não há leitos cadastrados",
+                      ),
                     ),
                   );
                 }

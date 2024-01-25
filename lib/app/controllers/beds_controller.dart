@@ -13,7 +13,24 @@ class BedsController {
         .map((doc) => BedModel.fromMap(doc.data())..id = doc.id)
         .toList();
     beds.sort((a, b) => a.name.compareTo(b.name));
+    // ordenar relatorios por data
+    for (var bed in beds) {
+      bed.reports.sort(
+        (a, b) => b.createdAt.toDate().compareTo(
+              a.createdAt.toDate(),
+            ),
+      );
+      bed.reports = bed.reports.reversed.toList();
+    }
     return beds;
+  }
+
+  Future<BedModel?> findById(String id) async {
+    final doc = await firestore.collection("beds").doc(id).get();
+    if (doc.exists) {
+      return BedModel.fromMap(doc.data()!)..id = doc.id;
+    }
+    return null;
   }
 
   Future<void> save(BedModel bedModel) async {

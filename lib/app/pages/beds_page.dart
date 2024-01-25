@@ -109,6 +109,7 @@ class _BedsPageState extends State<BedsPage> {
                 final bed = BedModel(
                   name: nameController.text,
                   createdAt: Timestamp.now(),
+                  reports: [],
                 );
                 controller.save(bed);
                 Navigator.of(context).pop();

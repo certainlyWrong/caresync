@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'report_model.dart';
-
 class PatientModel {
   String name;
   Timestamp createdAt;
-  List<ReportModel> reports = [];
 
   PatientModel({
     required this.name,
