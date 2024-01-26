@@ -6,7 +6,7 @@ import '../components/not_found_component.dart';
 import '../controllers/beds_controller.dart';
 import '../model/bed_model.dart';
 import '../model/patient_model.dart';
-import 'reports_page.dart';
+import 'patient_reports_page.dart';
 
 class PatientsPage extends StatefulWidget {
   const PatientsPage({super.key});
@@ -39,7 +39,7 @@ class _PatientsPageState extends State<PatientsPage> {
           title: const Text("Adicionar paciente"),
           content: SizedBox(
             width: 400,
-            height: 140,
+            height: 160,
             child: Column(
               children: [
                 Text.rich(
@@ -75,9 +75,23 @@ class _PatientsPageState extends State<PatientsPage> {
                           lastDate: DateTime.now().add(
                             const Duration(days: 4000),
                           ),
-                        ).then((value) {
-                          if (value != null) {
-                            addedAt.value = value;
+                        ).then((date) {
+                          if (date != null) {
+                            addedAt.value = date;
+                            showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            ).then((time) {
+                              if (time != null) {
+                                addedAt.value = DateTime(
+                                  date.year,
+                                  date.month,
+                                  date.day,
+                                  time.hour,
+                                  time.minute,
+                                );
+                              }
+                            });
                           }
                         });
                       },
@@ -86,7 +100,8 @@ class _PatientsPageState extends State<PatientsPage> {
                         builder: (context, value, child) {
                           return Text(
                             "${value.day}/${value.month}"
-                            "/${value.year}",
+                            "/${value.year} às "
+                            "${value.hour}:${value.minute}",
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                             ),
@@ -267,7 +282,7 @@ class _PatientsPageState extends State<PatientsPage> {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) {
-                                        return ReportsPage(
+                                        return PatientReportsPage(
                                           bed: bed,
                                         );
                                       },

@@ -29,9 +29,19 @@ class _HomePageState extends State<HomePage> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: "Visualisar, adicionar, remover "
-                        "e editar a identificação de leitos.",
-                  ),
+                      text:
+                          "Direciona para a página de gerenciamento de leitos. "
+                          "Visualisar, adicionar e remover a identificação de leitos.",
+                      children: [
+                        TextSpan(
+                          text:
+                              " A partir disso é possível adicionar e remover pacientes "
+                              "na página de gerenciamento de pacientes.",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ]),
                 ],
               ),
             ),
@@ -66,8 +76,18 @@ class _HomePageState extends State<HomePage> {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: "Visualisar, adicionar, remover "
-                        "e editar a identificação de pacientes.",
+                    text: "Visualisar, adicionar e remover"
+                        " a identificação de pacientes.",
+                    children: [
+                      TextSpan(
+                        text: " A partir disso é possível adicionar, "
+                            "remover e editar relatórios "
+                            "relacionados a cada paciente.",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -211,38 +231,38 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Text(
-                              "Relatório diário",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        IconButton(
-                          onPressed: showRelatorioDialog,
-                          icon: Icon(
-                            Icons.info_outline,
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Column(
+                    //   children: [
+                    //     ElevatedButton(
+                    //       onPressed: () {},
+                    //       style: ElevatedButton.styleFrom(
+                    //         shape: RoundedRectangleBorder(
+                    //           borderRadius: BorderRadius.circular(10),
+                    //         ),
+                    //       ),
+                    //       child: Padding(
+                    //         padding: const EdgeInsets.all(15.0),
+                    //         child: Text(
+                    //           "Relatório diário",
+                    //           style: Theme.of(context)
+                    //               .textTheme
+                    //               .titleLarge!
+                    //               .copyWith(
+                    //                 fontWeight: FontWeight.w700,
+                    //               ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(height: 10),
+                    //     IconButton(
+                    //       onPressed: showRelatorioDialog,
+                    //       icon: Icon(
+                    //         Icons.info_outline,
+                    //         color: Theme.of(context).colorScheme.tertiary,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ],

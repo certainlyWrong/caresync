@@ -1,27 +1,33 @@
-import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../components/not_found_component.dart';
+import '../components/reports_component.dart';
 import '../controllers/beds_controller.dart';
 import '../model/bed_model.dart';
 import '../model/report_model.dart';
 
-class ReportsPage extends StatefulWidget {
+class PatientReportsPage extends StatefulWidget {
   final BedModel bed;
-  const ReportsPage({
+  const PatientReportsPage({
     super.key,
     required this.bed,
   });
 
   @override
-  State<ReportsPage> createState() => _ReportsPageState();
+  State<PatientReportsPage> createState() => _PatientReportsPageState();
 }
 
-class _ReportsPageState extends State<ReportsPage> {
+class _PatientReportsPageState extends State<PatientReportsPage> {
   late BedsController bedsController;
   late BedModel bed;
+
+  final verticalScrollController = ScrollController();
+  final horizontalScrollController = ScrollController();
 
   @override
   void initState() {
@@ -36,6 +42,9 @@ class _ReportsPageState extends State<ReportsPage> {
     showDialog(
       context: context,
       builder: (context) {
+        ValueNotifier<DateTime> dateAndTime = ValueNotifier<DateTime>(
+          DateTime.now(),
+        );
         late ReportModel lastReport;
 
         if (bed.reports.isEmpty) {
@@ -75,6 +84,65 @@ class _ReportsPageState extends State<ReportsPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  ValueListenableBuilder(
+                    valueListenable: dateAndTime,
+                    builder: (context, value, child) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: value,
+                                  firstDate: DateTime.now().subtract(
+                                    const Duration(days: 365 * 5),
+                                  ),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365 * 5),
+                                  ),
+                                );
+                                if (date != null) {
+                                  dateAndTime.value = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    dateAndTime.value.hour,
+                                    dateAndTime.value.minute,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                DateFormat("dd/MM/yyyy").format(value),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(value),
+                                );
+                                if (time != null) {
+                                  dateAndTime.value = DateTime(
+                                    dateAndTime.value.year,
+                                    dateAndTime.value.month,
+                                    dateAndTime.value.day,
+                                    time.hour,
+                                    time.minute,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                DateFormat("HH:mm").format(value),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   ValueListenableBuilder(
                     valueListenable: interruptionDailySedation,
                     builder: (
@@ -188,7 +256,7 @@ class _ReportsPageState extends State<ReportsPage> {
               onPressed: () {
                 bed.reports.add(
                   ReportModel(
-                    createdAt: Timestamp.now(),
+                    createdAt: Timestamp.fromDate(dateAndTime.value),
                     interruptionDailySedation: interruptionDailySedation.value,
                     cuffPressure: cuffPressure.value,
                     adequateHumidificationSystem:
@@ -224,6 +292,9 @@ class _ReportsPageState extends State<ReportsPage> {
     showDialog(
       context: context,
       builder: (context) {
+        ValueNotifier<DateTime> dateAndTime = ValueNotifier<DateTime>(
+          report.createdAt.toDate(),
+        );
         ValueNotifier<bool> interruptionDailySedation =
             ValueNotifier<bool>(report.interruptionDailySedation);
         ValueNotifier<bool> cuffPressure =
@@ -245,6 +316,65 @@ class _ReportsPageState extends State<ReportsPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  ValueListenableBuilder(
+                    valueListenable: dateAndTime,
+                    builder: (context, value, child) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: value,
+                                  firstDate: DateTime.now().subtract(
+                                    const Duration(days: 365 * 5),
+                                  ),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365 * 5),
+                                  ),
+                                );
+                                if (date != null) {
+                                  dateAndTime.value = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    dateAndTime.value.hour,
+                                    dateAndTime.value.minute,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                DateFormat("dd/MM/yyyy").format(value),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () async {
+                                final time = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(value),
+                                );
+                                if (time != null) {
+                                  dateAndTime.value = DateTime(
+                                    dateAndTime.value.year,
+                                    dateAndTime.value.month,
+                                    dateAndTime.value.day,
+                                    time.hour,
+                                    time.minute,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                DateFormat("HH:mm").format(value),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   ValueListenableBuilder(
                     valueListenable: interruptionDailySedation,
                     builder: (
@@ -383,6 +513,9 @@ class _ReportsPageState extends State<ReportsPage> {
                             report.elevatedHeadboard = elevatedHeadboard.value;
                             report.oralHygiene = oralHygiene.value;
                             report.circuitDirt = circuitDirt.value;
+                            report.createdAt = Timestamp.fromDate(
+                              dateAndTime.value,
+                            );
 
                             bedsController.update(bed).then((value) {
                               setState(() {});
@@ -413,6 +546,123 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  showRemoveReportDialog(int reportIndex) {
+    final reportDate = DateFormat("dd/MM/yyyy HH:mm").format(
+      bed.reports[reportIndex].createdAt.toDate(),
+    );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          // mostrar data do relatorio
+          title: Text("Remover relatório: $reportDate"),
+          content: const Text(
+            "Deseja mesmo remover o relatório?"
+            " Essa ação não poderá ser desfeita.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                bed.reports.removeAt(reportIndex);
+                bedsController.update(bed).then((value) {
+                  setState(() {});
+                });
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(
+                      content: Text("Relatório removido com sucesso!"),
+                    ),
+                  );
+              },
+              child: const Text("Remover"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  showSaveSheet() {
+    final nameController = TextEditingController(
+      text: "${bed.patient!.name.toLowerCase().replaceAll(' ', '_')}__"
+          "entrada-${DateFormat("dd-MM-yyyy_HH-mm").format(
+        bed.patient!.createdAt.toDate(),
+      )}__rel_ini-${DateFormat("dd-MM-yyyy_HH-mm").format(
+        bed.reports.first.createdAt.toDate(),
+      )}__rel_fin-${DateFormat("dd-MM-yyyy_HH-mm").format(
+        bed.reports.last.createdAt.toDate(),
+      )}",
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Salvar relatório"),
+          content: TextField(
+            decoration: const InputDecoration(
+              labelText: "Nome do arquivo",
+            ),
+            controller: nameController,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                FilePicker.platform.getDirectoryPath().then((path) {
+                  if (path != null) {
+                    final file = File("$path/${nameController.text}.csv")
+                      ..create();
+                    final sink = file.openWrite();
+                    sink.writeln("data_hora,"
+                        "interrupcao_diaria_sedacao,"
+                        "pressao_cuff,"
+                        "sistema_umidificacao_adequado,"
+                        "desmame_vm,"
+                        "cabeciera_elevada,"
+                        "higiene_oral,"
+                        "sujidade_circuito");
+
+                    for (var report in bed.reports) {
+                      sink.writeln(
+                        "${DateFormat("dd/MM/yyyy HH:mm").format(
+                          report.createdAt.toDate(),
+                        )},"
+                        "${report.interruptionDailySedation ? 'Sim' : 'Não'},"
+                        "${report.cuffPressure ? 'Sim' : 'Não'},"
+                        "${report.adequateHumidificationSystem ? 'Sim' : 'Não'},"
+                        "${report.weaningMV ? 'Sim' : 'Não'},"
+                        "${report.elevatedHeadboard ? 'Sim' : 'Não'},"
+                        "${report.oralHygiene ? 'Sim' : 'Não'},"
+                        "${report.circuitDirt ? 'Sim' : 'Não'},",
+                      );
+                    }
+                    sink.close();
+                    Navigator.of(context).pop();
+                  }
+                });
+              },
+              child: const Text("Salvar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -424,6 +674,13 @@ class _ReportsPageState extends State<ReportsPage> {
           )}",
           overflow: TextOverflow.ellipsis,
         ),
+        actions: [
+          // save sheet
+          IconButton(
+            onPressed: showSaveSheet,
+            icon: const Icon(Icons.save_alt_rounded),
+          ),
+        ],
       ),
       floatingActionButton: SizedBox(
         width: 200,
@@ -459,366 +716,14 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
             );
           }
-          return Scrollbar(
-            trackVisibility: true,
-            thumbVisibility: true,
-            child: AdaptiveScrollbar(
-              controller: ScrollController(),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    const Column(
-                      children: [
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Data do relatório",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Data",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Interrupção diária da sedação",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "IDS",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Pressão do cuff 18-22mmHg ou 25cmH2O",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Cuff",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Sistema de umidificação adequado",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Umidificação",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message:
-                                "Desmame de VM/ teste de respiração espontânea",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Desmame",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Cabeceira elevada 30-45º",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Cabeceira",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Higiene oral com clorexidina",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Higiene oral",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 200,
-                          height: 70,
-                          child: Tooltip(
-                            message: "Sujidade do circuito",
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              child: Center(
-                                child: Text(
-                                  "Circuito",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    for (var report in bed.reports)
-                      InkWell(
-                        onTap: () {
-                          showEditReportDialog(
-                            bed.reports.indexOf(report),
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Data do relatório',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: Text(
-                                      DateFormat("dd/MM/yyyy HH:mm").format(
-                                        report.createdAt.toDate(),
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Interrupção diária da sedação',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.interruptionDailySedation
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Pressão do cuff 18-22mmHg ou 25cmH2O',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.cuffPressure
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Sistema de umidificação adequado',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.adequateHumidificationSystem
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message:
-                                    'Desmame de VM/ teste de respiração espontânea',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.weaningMV
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Cabeceira elevada 30-45º',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.elevatedHeadboard
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Higiene oral com clorexidina',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.oralHygiene
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              height: 70,
-                              child: Tooltip(
-                                message: 'Sujidade do circuito',
-                                child: Card(
-                                  margin: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: report.circuitDirt
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : const Icon(
-                                            Icons.close,
-                                            color: Colors.red,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+          return ReportsComponent(
+            reports: bed.reports,
+            onCellTap: (p0) {
+              showEditReportDialog(bed.reports.indexOf(p0));
+            },
+            onRemove: (p0) {
+              showRemoveReportDialog(bed.reports.indexOf(p0));
+            },
           );
         },
       ),

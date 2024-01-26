@@ -20,7 +20,6 @@ class BedsController {
               a.createdAt.toDate(),
             ),
       );
-      bed.reports = bed.reports.reversed.toList();
     }
     return beds;
   }
@@ -56,9 +55,9 @@ class BedsController {
   }
 
   Future<void> removePatient(BedModel bedModel) async {
-    await firestore
-        .collection("beds")
-        .doc(bedModel.id)
-        .update({"patient": null});
+    await firestore.collection("beds").doc(bedModel.id).update({
+      "patient": null,
+      "reports": null,
+    });
   }
 }
